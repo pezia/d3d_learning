@@ -365,6 +365,9 @@ void CleanD3D()
 	SAFE_RELEASE(devcon);
 	SAFE_RELEASE(dev);
 
+	SAFE_RELEASE(pConstantBuffer);
+	SAFE_RELEASE(pLayout);
+
 	if (cube) {
 		delete cube;
 		cube = NULL;
