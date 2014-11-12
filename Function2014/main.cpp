@@ -342,7 +342,7 @@ bool InitGraphics()
 
 	ZeroMemory(&bd, sizeof(bd));
 	bd.Usage = D3D11_USAGE_DYNAMIC;
-	bd.ByteWidth = 432;// sizeof(ConstantBuffer);
+	bd.ByteWidth = sizeof(ConstantBuffer);
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	dev->CreateBuffer(&bd, NULL, &pConstantBuffer);
@@ -461,10 +461,10 @@ void Render(DWORD tickCount)
 		XMMatrixRotationY(XM_PIDIV4 * sin(time / 10.0f)),
 		XMMatrixRotationX(XM_PIDIV4 * sin(time / 13.0f)));
 
-	XMFLOAT3 vLightDirs[2] =
+	XMFLOAT4 vLightDirs[2] =
 	{
-		XMFLOAT3(0.1f, 0.2f, 1.0f),
-		XMFLOAT3(0.0f, 0.0f, -1.0f),
+		XMFLOAT4(0.1f, 0.2f, 1.0f, 0.0f),
+		XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f),
 	};
 
 	XMFLOAT4 vLightColors[2] =
@@ -475,9 +475,9 @@ void Render(DWORD tickCount)
 
 	// Rotate the second light around the origin
 	XMMATRIX mRotate = XMMatrixRotationY(time);
-	XMVECTOR vLightDir = XMLoadFloat3(&vLightDirs[1]);
+	XMVECTOR vLightDir = XMLoadFloat4(&vLightDirs[1]);
 	vLightDir = XMVector3Transform(vLightDir, mRotate);
-	XMStoreFloat3(&vLightDirs[1], vLightDir);
+	XMStoreFloat4(&vLightDirs[1], vLightDir);
 
 	cb.mWorld = XMMatrixTranspose(g_World);
 	cb.mView = XMMatrixTranspose(g_View);
@@ -489,10 +489,10 @@ void Render(DWORD tickCount)
 	cb.vLightDir[1] = vLightDirs[1];
 	cb.vLightColor[0] = vLightColors[0];
 	cb.vLightColor[1] = vLightColors[1];
-	cb.fLightIntensity[0] = 0.3f;
-	cb.fLightIntensity[1] = 0.4f;
+	cb.fLightIntensity[0] = XMFLOAT4(0.2f, 0.0f, 0.0f, 0.0f);
+	cb.fLightIntensity[1] = XMFLOAT4(0.3f, 0.0f, 0.0f, 0.0f);
 	cb.vAmbientColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	cb.fAmbientIntensity = 0.5f;
+	cb.fAmbientIntensity = 0.05f;
 
 	D3D11_MAPPED_SUBRESOURCE sr;
 	devcon->Map(pConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sr);

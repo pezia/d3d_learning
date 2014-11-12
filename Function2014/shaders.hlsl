@@ -61,7 +61,7 @@ float4 PShader(VS_OUTPUT input) : SV_TARGET
 		float4 reflect = normalize(2 * diffuse*normal - float4(LightDir[i], 1.0));
 		float4 specular = pow(saturate(dot(reflect, input.view)), 15);
 		
-		//finalColor += diffuse * LightColor[i] * LightIntensity[i] + specular * LightColor[i] * LightIntensity[i];
+		finalColor += diffuse * LightColor[i] * LightIntensity[i] + specular * LightColor[i] * LightIntensity[i];
 	}
 
 	return saturate(finalColor);
