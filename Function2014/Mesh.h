@@ -1,7 +1,8 @@
-#ifndef __MESH_H__
-#define __MESH_H__
+#pragma once
 
+#include <D3D11.h>
 #include <xnamath.h>
+#include "macros.h"
 #include "types.h"
 
 class Mesh
@@ -18,32 +19,4 @@ public:
 
 	ID3D11Buffer *vertexBuffer;
 	ID3D11Buffer *indexBuffer;
-
-private:
-	
 };
-
-Mesh::Mesh()
-{
-}
-
-Mesh::~Mesh()
-{
-	if (vertices) {
-		delete[] vertices;
-	}
-
-	if (indices) {
-		delete[] indices;
-	}
-
-	if (vertexBuffer) {
-		vertexBuffer->Release();
-	}
-
-	if (indexBuffer) {
-		indexBuffer->Release();
-	}
-}
-
-#endif

@@ -81,12 +81,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="D3D11GeometryFactory.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Mesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders.hlsl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="D3D11GeometryFactory.h" />
+    <ClInclude Include="IGeometryFactory.h" />
+    <ClInclude Include="macros.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
