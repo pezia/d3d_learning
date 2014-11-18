@@ -1,24 +1,18 @@
+#include "macros.h"
 #include "Mesh.h"
 
-Mesh::Mesh()
+Mesh::Mesh() : 
+vertices(NULL), indices(NULL), 
+indexCount(0), vertexCount(0),
+vertexBuffer(NULL), indexBuffer(NULL)
 {
 }
 
 Mesh::~Mesh()
 {
-	if (vertices) {
-		delete[] vertices;
-	}
+	SAFE_DELETE_ARRAY(vertices);
+	SAFE_DELETE_ARRAY(indices);
 
-	if (indices) {
-		delete[] indices;
-	}
-
-	if (vertexBuffer) {
-		vertexBuffer->Release();
-	}
-
-	if (indexBuffer) {
-		indexBuffer->Release();
-	}
+	SAFE_RELEASE(vertexBuffer);
+	SAFE_RELEASE(indexBuffer);
 }

@@ -92,11 +92,12 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="MeshTests.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="GeometryFactoryTests.cpp" />
+    <ClCompile Include="D3D11GeometryFactoryTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Function2014\Function2014.vcxproj">

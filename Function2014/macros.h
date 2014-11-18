@@ -17,3 +17,12 @@
 		x = NULL;\
 	}
 #endif
+
+#ifndef SAFE_DELETE_ARRAY
+#define SAFE_DELETE_ARRAY(x) \
+	if(x != NULL)\
+	{\
+		delete[] x;\
+		x = NULL;\
+	}
+#endif
