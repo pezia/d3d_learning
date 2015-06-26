@@ -24,11 +24,7 @@ __declspec(align(4)) typedef struct ConstantBuffer_t
 	FLOAT    fLightIntensity[4];
 
 	__declspec(align(16)) XMFLOAT4 vAmbientColor;
-	FLOAT    fAmbientIntensity;
-
-	FLOAT    _padding2;
-	FLOAT    _padding3;
-	FLOAT    _padding4;
+	__declspec(align(16)) FLOAT    fAmbientIntensity;
 } ConstantBuffer;
 
 #endif
