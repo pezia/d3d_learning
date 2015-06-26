@@ -18,13 +18,12 @@ __declspec(align(4)) typedef struct ConstantBuffer_t
 	XMMATRIX mProjection;
 
 	XMFLOAT3 vEyePosition;
-	FLOAT    _padding1;
 
-	XMFLOAT4 vLightDir[4];
+	__declspec(align(16)) XMFLOAT4 vLightDir[4];
 	XMFLOAT4 vLightColor[4];
 	FLOAT    fLightIntensity[4];
 
-	XMFLOAT4 vAmbientColor;
+	__declspec(align(16)) XMFLOAT4 vAmbientColor;
 	FLOAT    fAmbientIntensity;
 
 	FLOAT    _padding2;
