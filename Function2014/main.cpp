@@ -407,8 +407,8 @@ void Render(DWORD tickCount)
 	cb.vLightDir[1] = vLightDirs[1];
 	cb.vLightColor[0] = vLightColors[0];
 	cb.vLightColor[1] = vLightColors[1];
-	cb.fLightIntensity[0].x = 0.2f;
-	cb.fLightIntensity[1].x = 0.3f;
+	cb.fLightIntensity[0] = 0.2f;
+	cb.fLightIntensity[1] = 0.3f;
 	cb.vAmbientColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	cb.fAmbientIntensity = 0.05f;
 

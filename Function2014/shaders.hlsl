@@ -8,12 +8,13 @@ cbuffer ConstantBuffer
 
 	float3 LightDir[4];
 	float4 LightColor[4];
-	float  LightIntensity[4];
+	float4 LightIntensities;
 
 	float4 AmbientColor;
 	float  AmbientIntensity;
-}
+};
 
+static float LightIntensity[4] = (float[4])LightIntensities;
 
 struct VS_INPUT
 {
