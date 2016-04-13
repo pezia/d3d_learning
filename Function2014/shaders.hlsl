@@ -1,69 +1,69 @@
-cbuffer ConstantBuffer 
+cbuffer ConstantBuffer
 {
-	matrix World;
+	matrix Model;
 	matrix View;
 	matrix Projection;
 
 	float3 EyePosition;
 
-	float3 LightDir[4];
-	float4 LightColor[4];
-	float4 LightIntensities;
+	uint   LightCount;
+	float3 LightDir[16];
+	float4 LightColor[16];
+	matrix LightIntensities;
 
 	float4 AmbientColor;
 	float  AmbientIntensity;
 };
 
-static float LightIntensity[4] = (float[4])LightIntensities;
+static float LightIntensity[16] = (float[16])LightIntensities;
 
 struct VS_INPUT
 {
-	float4 position : POSITION;
+	float3 position : POSITION;
 	float3 normal   : NORMAL;
-	float4 color    : COLOR0;
+	float2 texcoord : TEXCOORD0;
 };
 
 struct VS_OUTPUT
 {
-	float4 position : SV_POSITION;
-	float4 color    : COLOR0;
-	float3 normal   : TEXCOORD0;
-	float3 view     : TEXCOORD1;
+	float4 position      : SV_POSITION;
+	float3 normal        : NORMAL;
+	float2 texcoord      : TEXCOORD0;
+	float3 worldPosition : TEXCOORD1;
 };
+
+Texture2D Texture : register(t0);
+SamplerState Sampler : register(s0);
 
 VS_OUTPUT VShader(VS_INPUT input)
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
 
-	float4 worldPosition = mul(input.position, World);
-
-	output.position = worldPosition;
-	output.position = mul(output.position, View);
-	output.position = mul(output.position, Projection);
-
-	output.normal = mul(input.normal, World);
-
-	output.view = normalize(float4(EyePosition, 1.0) - worldPosition);
-
-	output.color = input.color;
+	float4 temp = float4(input.position, 1.0f);
+	temp = mul(temp, Model);
+	output.worldPosition = temp.xyz / temp.w;
+	temp = mul(temp, View);
+	temp = mul(temp, Projection);
+	output.position = temp;
+	output.texcoord = input.texcoord;
+	output.normal = mul(float4(input.normal, 0.0f), Model).xyz;
 
 	return output;
 }
 
 float4 PShader(VS_OUTPUT input) : SV_TARGET
 {
-	float4 finalColor = AmbientIntensity * AmbientColor;
+	float3 finalColor = 0;
+	float3 normal = normalize(input.normal);
 
-	float4 normal = float4(input.normal, 1.0);
-
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < LightCount; i++)
 	{
-		float4 diffuse = saturate(dot(-LightDir[i], normal));
-		float4 reflect = normalize(2 * diffuse*normal - float4(LightDir[i], 1.0));
-		float4 specular = pow(saturate(dot(reflect, input.view)), 15);
-		
-		finalColor += diffuse * LightColor[i] * LightIntensity[i] + specular * LightColor[i] * LightIntensity[i];
+		float3 lightDirWorld = mul(LightDir[i], Model);
+		float NdotL = dot(normal, lightDirWorld);
+		float Ka = saturate(NdotL + 1);
+		float Kd = saturate(NdotL);
+		finalColor += /*(AmbientColor * Ka) + */(LightColor[i] * Kd * LightIntensity[i]);
 	}
 
-	return saturate(finalColor);
+	return saturate(float4(finalColor, 1.0f));
 }

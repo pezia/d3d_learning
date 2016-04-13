@@ -18,14 +18,14 @@ namespace Function2014Test
 		{
 			Mesh mesh;
 
-			Assert::IsNull(mesh.vertices, L"Vertices is initialized to NULL");
-			Assert::IsNull(mesh.indices, L"Indices is initialized to NULL");
+			Assert::IsNull(mesh.vertexBuffer, L"Vertex buffer is initialized to NULL");
+			Assert::IsNull(mesh.indexBuffer, L"Index buffer is initialized to NULL");
 
 			Assert::IsNull(mesh.vertexBuffer, L"Vertex buffer is initialized to NULL");
 			Assert::IsNull(mesh.indexBuffer, L"Index buffer is initialized to NULL");
 
-			Assert::AreEqual(0, (int)mesh.vertexCount, L"Vertex count is zero");
-			Assert::AreEqual(0, (int)mesh.indexCount, L"Index count is zero");
+			Assert::AreEqual(0, (int)mesh.numVertices, L"Vertex count is zero");
+			Assert::AreEqual(0, (int)mesh.numIndices, L"Index count is zero");
 		}
 	};
 }

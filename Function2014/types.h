@@ -8,23 +8,30 @@ typedef struct SimpleVertex_t
 {
 	XMFLOAT3 Pos;
 	XMFLOAT3 Normal;
-	XMFLOAT4 Color;
+	XMFLOAT2 TexCoord;
 } SimpleVertex;
 
-__declspec(align(4)) typedef struct ConstantBuffer_t
+
+#pragma pack(push, 4)
+
+typedef struct ConstantBuffer_t
 {
-	XMMATRIX mWorld;
+	XMMATRIX mModel;
 	XMMATRIX mView;
 	XMMATRIX mProjection;
 
 	XMFLOAT3 vEyePosition;
 
-	__declspec(align(16)) XMFLOAT4 vLightDir[4];
-	XMFLOAT4 vLightColor[4];
-	FLOAT    fLightIntensity[4];
+	__declspec(align(4)) INT32 iLightCount;
+
+	__declspec(align(16)) XMFLOAT4 vLightDir[16];
+	XMFLOAT4 vLightColor[16];
+	FLOAT    fLightIntensity[16];
 
 	__declspec(align(16)) XMFLOAT4 vAmbientColor;
 	__declspec(align(16)) FLOAT    fAmbientIntensity;
 } ConstantBuffer;
+
+#pragma pack(pop)
 
 #endif

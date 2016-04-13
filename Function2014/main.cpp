@@ -1,19 +1,21 @@
 // include the basic windows header file
-#include <windows.h>
-#include <windowsx.h>
+#include <iostream>
 #include <math.h>
-#include <d3d11.h>
+#include <vector>
 #include <D3DX11.h>
 #include <xnamath.h>
+#include "debug.h"
 #include "types.h"
 #include "macros.h"
 #include "Mesh.h"
 #include "IGeometryFactory.h"
 #include "D3D11GeometryFactory.h"
+#include "DirectxHelper.h"
 
 // include the Direct3D Library file
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dx11.lib")
+#pragma comment (lib, "dxgi.lib")
 
 // the WindowProc function prototype
 LRESULT CALLBACK WindowProc(HWND hWnd,
@@ -54,14 +56,19 @@ ID3D11Buffer *pConstantBuffer;
 ID3D11InputLayout *pLayout;
 
 ConstantBuffer cb;
-XMMATRIX g_World;
+XMMATRIX g_Model;
 XMMATRIX g_View;
 XMMATRIX g_Projection;
 
 IGeometryFactory* geometryFactory;
-Mesh *cube;
 
-int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+std::vector<Mesh *> sceneObjects = std::vector<Mesh *>();
+
+int WINAPI WinMain(
+	_In_ HINSTANCE hInst, 
+	_In_opt_ HINSTANCE hPrevInstance, 
+	_In_ LPSTR lpCmdLine,
+	_In_ int nCmdShow)
 {
 	hInstance = hInst;
 
@@ -89,7 +96,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);			// Load The Arrow Pointer
 	wc.hbrBackground = NULL;						// No Background Required For GL
 	wc.lpszMenuName = NULL;						// We Don't Want A Menu
-	wc.lpszClassName = "OpenGL";					// Set The Class Name
+	wc.lpszClassName = "Intro";					// Set The Class Name
 
 	if (!RegisterClass(&wc))						// Attempt To Register The Window Class
 	{
@@ -99,7 +106,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 
 	// create the window and use the result as the handle
 	hWnd = CreateWindowEx(NULL,
-		"OpenGL",    // name of the window class
+		"Intro",    // name of the window class
 		"",   // title of the window
 		WS_OVERLAPPEDWINDOW,    // window style
 		0,    // x-position of the window
@@ -168,8 +175,36 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 	return msg.wParam;
 }
 
+IDXGIAdapter1* selectAdapter()
+{
+	int i = 0;
+	IDXGIAdapter1 * pAdapter;
+	IDXGIFactory1 * pFactory;
+	DXGI_ADAPTER_DESC1 adapterDesc;
+	std::vector <IDXGIAdapter1*> adapters;
+
+	DirectxHelper::ThrowIfFailed(CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)(&pFactory)));
+
+	while (pFactory->EnumAdapters1(i++, &pAdapter) != DXGI_ERROR_NOT_FOUND)
+	{
+		adapters.push_back(pAdapter);
+	}
+
+	// TODO: show dialog with the adapters
+	for each (IDXGIAdapter1* adapter in adapters)
+	{
+		adapter->GetDesc1(&adapterDesc);
+	}
+
+	SAFE_RELEASE(pFactory);
+	// TODO: release unused adapters
+
+	return adapters.at(0);
+}
 
 bool InitD3D(HWND hWnd) {
+	D3D_FEATURE_LEVEL featureLevel;
+
 	scd.BufferCount = 1;                                    // one back buffer
 	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;     // use 32-bit color
 	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;      // how swap chain is to be used
@@ -178,9 +213,12 @@ bool InitD3D(HWND hWnd) {
 	scd.Windowed = TRUE;                                    // windowed/full-screen mode
 	scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;     // allow full-screen switching
 
+	IDXGIAdapter1 * pAdapter;
 
-	D3D11CreateDeviceAndSwapChain(NULL,
-		D3D_DRIVER_TYPE_HARDWARE,
+	pAdapter = selectAdapter();
+
+	DirectxHelper::ThrowIfFailed(D3D11CreateDeviceAndSwapChain(pAdapter,
+		D3D_DRIVER_TYPE_UNKNOWN,
 		NULL,
 		D3D11_CREATE_DEVICE_DEBUG,
 		NULL,
@@ -189,15 +227,20 @@ bool InitD3D(HWND hWnd) {
 		&scd,
 		&swapchain,
 		&dev,
-		NULL,
-		&devcon);
+		&featureLevel,
+		&devcon));
+
+	SetDebugObjectName(devcon, "Device context");
 
 	// get the address of the back buffer
 	ID3D11Texture2D *pBackBuffer;
 	swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+	SetDebugObjectName(pBackBuffer, "Backbuffer texture");
 
 	// use the back buffer address to create the render target
-	dev->CreateRenderTargetView(pBackBuffer, NULL, &backbuffer);
+	DirectxHelper::ThrowIfFailed(dev->CreateRenderTargetView(pBackBuffer, NULL, &backbuffer));
+	SetDebugObjectName(backbuffer, "Backbuffer");
+
 	pBackBuffer->Release();
 
 	// set the render target as the back buffer
@@ -213,7 +256,7 @@ bool InitD3D(HWND hWnd) {
 bool InitPipeline()
 {
 	// load and compile the two shaders
-	ID3D10Blob *VS, *PS, *errors;
+	ID3DBlob *VS, *PS, *errors;
 
 	if (FAILED(D3DX11CompileFromFile("shaders.hlsl", 0, 0, "VShader", "vs_4_0", 0, 0, 0, &VS, &errors, 0))) {
 		char *verror = (char *)errors->GetBufferPointer();
@@ -230,22 +273,26 @@ bool InitPipeline()
 	}
 
 	// encapsulate both shaders into shader objects
-	dev->CreateVertexShader(VS->GetBufferPointer(), VS->GetBufferSize(), NULL, &pVS);
-	dev->CreatePixelShader(PS->GetBufferPointer(), PS->GetBufferSize(), NULL, &pPS);
+	DirectxHelper::ThrowIfFailed(dev->CreateVertexShader(VS->GetBufferPointer(), VS->GetBufferSize(), NULL, &pVS));
+	DirectxHelper::ThrowIfFailed(dev->CreatePixelShader(PS->GetBufferPointer(), PS->GetBufferSize(), NULL, &pPS));
+
+	SetDebugObjectName(pVS, "Vertex shader");
+	SetDebugObjectName(pPS, "Pixel shader");
 
 	// set the shader objects
 	devcon->VSSetShader(pVS, 0, 0);
 	devcon->PSSetShader(pPS, 0, 0);
 
 	// create the input layout object
-	D3D11_INPUT_ELEMENT_DESC ied[] =
+	D3D11_INPUT_ELEMENT_DESC inputElementDescriptor[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	dev->CreateInputLayout(ied, 3, VS->GetBufferPointer(), VS->GetBufferSize(), &pLayout);
+	DirectxHelper::ThrowIfFailed(dev->CreateInputLayout(inputElementDescriptor, ARRAYSIZE(inputElementDescriptor), VS->GetBufferPointer(), VS->GetBufferSize(), &pLayout));
+	SetDebugObjectName(pLayout, "Input layout");
 	devcon->IASetInputLayout(pLayout);
 
 	return true;
@@ -254,7 +301,12 @@ bool InitPipeline()
 bool InitGraphics()
 {
 	geometryFactory = new D3D11GeometryFactory(dev);
-	cube = geometryFactory->createCube();
+	//Mesh* cube = geometryFactory->createCube();
+	Mesh* referenceAxis = geometryFactory->createReferenceAxis();
+	//Mesh* sphere = geometryFactory->createSphere(128);
+	//sceneObjects.push_back(cube);
+	sceneObjects.push_back(referenceAxis);
+	//sceneObjects.push_back(sphere);
 
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
@@ -262,7 +314,10 @@ bool InitGraphics()
 	bd.ByteWidth = sizeof(ConstantBuffer);
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	dev->CreateBuffer(&bd, NULL, &pConstantBuffer);
+	
+	DirectxHelper::ThrowIfFailed(dev->CreateBuffer(&bd, NULL, &pConstantBuffer));
+
+	SetDebugObjectName(pConstantBuffer, "Constant buffer");
 
 	devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -285,7 +340,11 @@ void CleanD3D()
 	SAFE_RELEASE(pConstantBuffer);
 	SAFE_RELEASE(pLayout);
 
-	SAFE_DELETE(cube);
+	for each (Mesh* mesh in sceneObjects)
+	{
+		SAFE_DELETE(mesh);
+	}
+
 	SAFE_DELETE(geometryFactory);
 }
 
@@ -313,10 +372,14 @@ void ResizeScene(int newWidth, int newHeight) {
 			// Perform error handling here!
 		}
 
+		SetDebugObjectName(pBuffer, "Backbuffer texture");
+
 		if (FAILED(dev->CreateRenderTargetView(pBuffer, NULL,
 			&backbuffer))) {
 			// Perform error handling here!
 		}
+
+		SetDebugObjectName(backbuffer, "Backbuffer");
 
 		pBuffer->Release();
 
@@ -369,20 +432,21 @@ void Render(DWORD tickCount)
 
 	ConstantBuffer cb;
 
-	XMVECTOR eye = XMVectorSet(0.0f, 0.0f, -3.0f, 0.0f);
+	XMVECTOR eye = XMVectorSet(sin(time), -1.0f, cos(time), 0.0f);
 	XMVECTOR at = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 	g_View = XMMatrixLookAtLH(eye, at, up);
-	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, width / (float)height, 0.01f, 100.0f);
-	g_World = XMMatrixMultiply(
-		XMMatrixRotationY(XM_PIDIV4 * sin(time / 10.0f)),
-		XMMatrixRotationX(XM_PIDIV4 * sin(time / 13.0f)));
-
+	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, (float)width / (float)height, 0.01f, 100.0f);
+	g_Model = XMMatrixIdentity();
+	/*XMMatrixMultiply(
+		XMMatrixRotationY(XM_2PI * sin(time / 3.0f)),
+		XMMatrixRotationX(XM_2PI * cos(time / 3.0f)));
+		*/
 	XMFLOAT4 vLightDirs[2] =
 	{
-		XMFLOAT4(0.1f, 0.2f, 1.0f, 0.0f),
-		XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f),
+		XMFLOAT4(1.0f, 0.2f, 1.0f, 0.0f),
+		XMFLOAT4(1.0f, -1.0f, 0.0f, 0.0f),
 	};
 
 	XMFLOAT4 vLightColors[2] =
@@ -392,23 +456,24 @@ void Render(DWORD tickCount)
 	};
 
 	// Rotate the second light around the origin
-	XMMATRIX mRotate = XMMatrixRotationY(time);
+	XMMATRIX mRotate = XMMatrixRotationZ(time * 2);
 	XMVECTOR vLightDir = XMLoadFloat4(&vLightDirs[1]);
 	vLightDir = XMVector3Transform(vLightDir, mRotate);
 	XMStoreFloat4(&vLightDirs[1], vLightDir);
 
-	cb.mWorld = XMMatrixTranspose(g_World);
+	cb.mModel = XMMatrixTranspose(g_Model);
 	cb.mView = XMMatrixTranspose(g_View);
 	cb.mProjection = XMMatrixTranspose(g_Projection);
 
 	XMStoreFloat3(&cb.vEyePosition, eye);
 
+	cb.iLightCount = 2;
 	cb.vLightDir[0] = vLightDirs[0];
 	cb.vLightDir[1] = vLightDirs[1];
 	cb.vLightColor[0] = vLightColors[0];
 	cb.vLightColor[1] = vLightColors[1];
-	cb.fLightIntensity[0] = 0.2f;
-	cb.fLightIntensity[1] = 0.3f;
+	cb.fLightIntensity[0] = 0.7f;
+	cb.fLightIntensity[1] = 0.7f;
 	cb.vAmbientColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	cb.fAmbientIntensity = 0.05f;
 
@@ -420,17 +485,20 @@ void Render(DWORD tickCount)
 	// select which vertex and index buffer to display
 	UINT stride = sizeof(SimpleVertex);
 	UINT offset = 0;
-	devcon->IASetVertexBuffers(0, 1, &cube->vertexBuffer, &stride, &offset);
-	devcon->IASetIndexBuffer(cube->indexBuffer, DXGI_FORMAT_R16_UINT, 0);
+	for each (Mesh* mesh in sceneObjects)
+	{
+		devcon->IASetVertexBuffers(0, 1, &mesh->vertexBuffer, &stride, &offset);
+		devcon->IASetIndexBuffer(mesh->indexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
-	// select which primtive type we are using
-	devcon->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	devcon->VSSetShader(pVS, NULL, 0);
-	devcon->VSSetConstantBuffers(0, 1, &pConstantBuffer);
-	devcon->PSSetShader(pPS, NULL, 0);
-	devcon->PSSetConstantBuffers(0, 1, &pConstantBuffer);
+		// select which primtive type we are using
+		devcon->IASetPrimitiveTopology(mesh->primitiveTopology);
+		devcon->VSSetShader(pVS, NULL, 0);
+		devcon->VSSetConstantBuffers(0, 1, &pConstantBuffer);
+		devcon->PSSetShader(pPS, NULL, 0);
+		devcon->PSSetConstantBuffers(0, 1, &pConstantBuffer);
 
-	devcon->DrawIndexed(36, 0, 0);
+		devcon->DrawIndexed(mesh->numIndices, 0, 0);
+	}
 
 	// switch the back buffer and the front buffer
 	swapchain->Present(0, 0);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <D3D11.h>
 #include <xnamath.h>
 #include "macros.h"
@@ -11,11 +12,12 @@ public:
 	Mesh();
 	~Mesh();
 
-	SimpleVertex *vertices;
-	WORD vertexCount;
+	std::string name;
 
-	WORD *indices;
-	WORD indexCount;
+	D3D_PRIMITIVE_TOPOLOGY primitiveTopology;
+
+	DWORD numVertices;
+	DWORD numIndices;
 
 	ID3D11Buffer *vertexBuffer;
 	ID3D11Buffer *indexBuffer;

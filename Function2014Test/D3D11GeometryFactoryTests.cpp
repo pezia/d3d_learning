@@ -8,7 +8,6 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace Function2014Test
 {
-
 	TEST_CLASS(D3D11GeometryFactoryTests)
 	{
 	public:
@@ -31,10 +30,10 @@ namespace Function2014Test
 		{
 			Mesh* cube = factory->createCube();
 
-			Assert::AreEqual(24, (int)cube->vertexCount, L"A cube has 24 vertices");
-			Assert::IsNotNull(cube->vertices, L"The vertices array is initialized");
-			Assert::AreEqual(36, (int)cube->indexCount, L"A cube has 36 indices");
-			Assert::IsNotNull(cube->indices, L"The indices array is initialized");
+			Assert::AreEqual(24, (int)cube->numVertices, L"A cube has 24 vertices");
+			Assert::IsNotNull(cube->vertexBuffer, L"The vertex buffer is initialized");
+			Assert::AreEqual(36, (int)cube->numIndices, L"A cube has 36 indices");
+			Assert::IsNotNull(cube->indexBuffer, L"The index buffer is initialized");
 			
 			delete cube;
 		}
