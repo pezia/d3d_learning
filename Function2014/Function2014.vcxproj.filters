@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\TimelineEvents">
+      <UniqueIdentifier>{6499898c-65ba-412f-8969-3d37ae7622a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\TimelineEvents">
+      <UniqueIdentifier>{b01fd6c9-4405-4cb5-9dab-015010f760fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Properties">
+      <UniqueIdentifier>{dda9946f-efb4-4af9-acdc-ad095df0629f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -22,6 +31,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="D3D11GeometryFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\lib\native\src\gtest\gtest-all.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\lib\native\src\gmock\gmock-all.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PostProcessEffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -48,6 +69,39 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DirectxHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OmniLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PostProcessEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Timeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTimelineEvent.h">
+      <Filter>Header Files\TimelineEvents</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IProperty.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TimelineEventAbstract.h">
+      <Filter>Header Files\TimelineEvents</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="classes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

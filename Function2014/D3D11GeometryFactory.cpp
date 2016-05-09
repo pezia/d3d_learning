@@ -1,20 +1,18 @@
-#include <memory>
 #include "D3D11GeometryFactory.h"
-#include "debug.h"
-#include "DirectxHelper.h"
 
-D3D11GeometryFactory::D3D11GeometryFactory(ID3D11Device* device) : dev(device)
+D3D11GeometryFactory::D3D11GeometryFactory(ID3D11Device1* device) : dev(device)
 {
 }
 
 D3D11GeometryFactory::~D3D11GeometryFactory()
 {
+	dev = nullptr;
 }
 
 Mesh* D3D11GeometryFactory::createCube() {
 	Mesh* cube = new Mesh();
 
-	cube->name = "Cube";
+	cube->name = L"Cube";
 	cube->primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	cube->numVertices = 24;
 
@@ -79,7 +77,7 @@ Mesh* D3D11GeometryFactory::createCube() {
 Mesh* D3D11GeometryFactory::createSphere(const int numSegments) {
 	Mesh* sphere = new Mesh();
 
-	sphere->name = "Sphere";
+	sphere->name = L"Sphere";
 	sphere->primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	const int numSlices = numSegments / 2;
@@ -283,7 +281,7 @@ Mesh* D3D11GeometryFactory::createReferenceAxis()
 	};
 
 	Mesh* axisMesh = new Mesh();
-	axisMesh->name = "Reference axis";
+	axisMesh->name = L"Reference axis";
 	axisMesh->numVertices = ARRAYSIZE(axisVertices);
 	axisMesh->numIndices = ARRAYSIZE(axisIndices);
 
@@ -300,32 +298,28 @@ void D3D11GeometryFactory::createBuffers(
 	int numIndices
 	) {
 	// TODO: use ComPtr to prevent memory leak during errors.
-	D3D11_BUFFER_DESC vertexBufferDesc;
-	D3D11_BUFFER_DESC indexBufferDesc;
-
-	ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
-	ZeroMemory(&indexBufferDesc, sizeof(indexBufferDesc));
+	D3D11_BUFFER_DESC vertexBufferDesc = { 0 };
+	D3D11_BUFFER_DESC indexBufferDesc = { 0 };
 
 	vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;                // write access access by CPU and GPU
 	vertexBufferDesc.ByteWidth = sizeof(SimpleVertex) * numVertices;             // size is the VERTEX struct * 3
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;       // use as a vertex buffer
 	vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;    // allow CPU to write in buffer
 
-	D3D11_SUBRESOURCE_DATA InitData;
-	ZeroMemory(&InitData, sizeof(InitData));
+	D3D11_SUBRESOURCE_DATA InitData = { 0 };
 	InitData.pSysMem = vertices;
 
 	DirectxHelper::ThrowIfFailed(dev->CreateBuffer(&vertexBufferDesc, &InitData, &mesh->vertexBuffer));
-	SetDebugObjectName(mesh->vertexBuffer, "Vertext buffer");
+	SetDebugObjectName(mesh->vertexBuffer.Get(), "Vertext buffer");
 
 	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	indexBufferDesc.ByteWidth = sizeof(WORD) * numIndices;
 	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexBufferDesc.CPUAccessFlags = 0;
 
-	ZeroMemory(&InitData, sizeof(InitData));
+	SecureZeroMemory(&InitData, sizeof(InitData));
 	InitData.pSysMem = indices;
 
 	DirectxHelper::ThrowIfFailed(dev->CreateBuffer(&indexBufferDesc, &InitData, &mesh->indexBuffer));
-	SetDebugObjectName(mesh->indexBuffer, "Index buffer");
+	SetDebugObjectName(mesh->indexBuffer.Get(), "Index buffer");
 }

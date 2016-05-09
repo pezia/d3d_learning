@@ -1,10 +1,8 @@
 #pragma once
 
-#include <string>
-#include <D3D11.h>
-#include <xnamath.h>
-#include "macros.h"
-#include "types.h"
+#include "common.h"
+
+using namespace Microsoft::WRL;
 
 class Mesh
 {
@@ -12,13 +10,19 @@ public:
 	Mesh();
 	~Mesh();
 
-	std::string name;
+	std::wstring name;
 
 	D3D_PRIMITIVE_TOPOLOGY primitiveTopology;
 
 	DWORD numVertices;
 	DWORD numIndices;
 
-	ID3D11Buffer *vertexBuffer;
-	ID3D11Buffer *indexBuffer;
+	ComPtr<ID3D11Buffer>       vertexBuffer;
+	ComPtr<ID3D11Buffer>       indexBuffer;
+
+	ComPtr<ID3D11InputLayout>  vertexLayout;
+	ComPtr<ID3D11VertexShader> vertexShader;
+	ComPtr<ID3D11PixelShader>  pixelShader;
+
+	XMMATRIX modelMatrix;
 };

@@ -31,9 +31,9 @@ namespace Function2014Test
 			Mesh* cube = factory->createCube();
 
 			Assert::AreEqual(24, (int)cube->numVertices, L"A cube has 24 vertices");
-			Assert::IsNotNull(cube->vertexBuffer, L"The vertex buffer is initialized");
+			Assert::IsNotNull(cube->vertexBuffer.Get(), L"The vertex buffer is initialized");
 			Assert::AreEqual(36, (int)cube->numIndices, L"A cube has 36 indices");
-			Assert::IsNotNull(cube->indexBuffer, L"The index buffer is initialized");
+			Assert::IsNotNull(cube->indexBuffer.Get(), L"The index buffer is initialized");
 			
 			delete cube;
 		}

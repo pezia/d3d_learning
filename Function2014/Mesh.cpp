@@ -1,13 +1,16 @@
-#include "macros.h"
 #include "Mesh.h"
 
 Mesh::Mesh() :
-vertexBuffer(NULL), indexBuffer(NULL), primitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
+	vertexBuffer(nullptr), indexBuffer(nullptr), vertexLayout(nullptr), vertexShader(nullptr), pixelShader(nullptr), primitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
 {
+	modelMatrix = XMMatrixIdentity();
 }
 
 Mesh::~Mesh()
 {
-	SAFE_RELEASE(vertexBuffer);
-	SAFE_RELEASE(indexBuffer);
+	vertexShader = nullptr;
+	pixelShader = nullptr;
+	vertexBuffer = nullptr;
+	indexBuffer = nullptr;
+	vertexLayout = nullptr;
 }

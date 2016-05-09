@@ -4,18 +4,14 @@ cbuffer ConstantBuffer
 	matrix View;
 	matrix Projection;
 
-	float3 EyePosition;
+	float4 EyePosition;
 
-	uint   LightCount;
-	float3 LightDir[16];
-	float4 LightColor[16];
-	matrix LightIntensities;
+	float4 OmniLightPositions[16];
+	float4 OmniLightColors[16];
+	matrix OmniLightRangePacked;
 
-	float4 AmbientColor;
-	float  AmbientIntensity;
+	uint   OmniLightCount;
 };
-
-static float LightIntensity[16] = (float[16])LightIntensities;
 
 struct VS_INPUT
 {
@@ -35,15 +31,20 @@ struct VS_OUTPUT
 Texture2D Texture : register(t0);
 SamplerState Sampler : register(s0);
 
+static float OmniLightRanges[16] = (float[16])OmniLightRangePacked;
+
 VS_OUTPUT VShader(VS_INPUT input)
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
 
 	float4 temp = float4(input.position, 1.0f);
-	temp = mul(temp, Model);
+		temp = mul(temp, Model);
+
 	output.worldPosition = temp.xyz / temp.w;
+
 	temp = mul(temp, View);
 	temp = mul(temp, Projection);
+
 	output.position = temp;
 	output.texcoord = input.texcoord;
 	output.normal = mul(float4(input.normal, 0.0f), Model).xyz;
@@ -53,17 +54,33 @@ VS_OUTPUT VShader(VS_INPUT input)
 
 float4 PShader(VS_OUTPUT input) : SV_TARGET
 {
-	float3 finalColor = 0;
-	float3 normal = normalize(input.normal);
+	uint i;
 
-	for (int i = 0; i < LightCount; i++)
+	float3 finalColor = (float3)0;
+
+	float3 viewDirection = normalize((float3)EyePosition - input.worldPosition);
+		
+	for (i = 0; i < OmniLightCount; i++)
 	{
-		float3 lightDirWorld = mul(LightDir[i], Model);
-		float NdotL = dot(normal, lightDirWorld);
-		float Ka = saturate(NdotL + 1);
+		/*float3 lightPosition = OmniLightPositions[i].xyz;
+		float3 lightDirWorld = normalize(lightPosition - input.worldPosition);
+		float NdotL = dot(input.normal, lightDirWorld);
 		float Kd = saturate(NdotL);
-		finalColor += /*(AmbientColor * Ka) + */(LightColor[i] * Kd * LightIntensity[i]);
+		finalColor += (OmniLightColors[i] * Kd);
+		*/
+
+		float3 lightPosition = OmniLightPositions[i].xyz;
+		float3 lightDirection = normalize(lightPosition - input.worldPosition);
+		float3 lightColor = OmniLightColors[i].rgb;
+		float lightRange = saturate(1 - dot(lightDirection / OmniLightRanges[i], lightDirection / OmniLightRanges[i]));
+		float lightIntensity = saturate(dot(input.normal, lightDirection));
+		float shadow = saturate(4.0 * lightRange);
+		float3 reflection = normalize(2.0 * lightIntensity * input.normal - lightDirection);
+		float specular = min(pow(saturate(dot(reflection, viewDirection)), 3), 1.0);
+
+		//finalColor += shadow * saturate((lightColor * lightIntensity) * lightRange);
+		finalColor += saturate(lightColor * lightIntensity);
 	}
 
-	return saturate(float4(finalColor, 1.0f));
+	return saturate(float4(finalColor, 1.0));
 }
