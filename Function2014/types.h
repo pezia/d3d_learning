@@ -1,7 +1,10 @@
 #pragma once
 
 #include <windows.h>
-#include <xnamath.h>
+#include <DirectXMath.h>
+#include <DirectXPackedVector.h>
+
+using namespace DirectX;
 
 typedef struct SimpleVertex_t
 {

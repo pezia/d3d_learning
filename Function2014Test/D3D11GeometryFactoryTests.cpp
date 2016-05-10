@@ -11,7 +11,7 @@ namespace Function2014Test
 	TEST_CLASS(D3D11GeometryFactoryTests)
 	{
 	public:
-		ID3D11Device* fakeDevice = NULL;
+		ID3D11Device1* fakeDevice = NULL;
 		IGeometryFactory* factory;
 
 		TEST_METHOD_INITIALIZE(setUp) {

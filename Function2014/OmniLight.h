@@ -1,7 +1,8 @@
 #pragma once
 
-#include <D3DX11.h>
-#include <xnamath.h>
+#include <DirectXMath.h>
+
+using namespace DirectX;
 
 class OmniLight
 {

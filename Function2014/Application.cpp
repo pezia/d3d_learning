@@ -167,7 +167,7 @@ HRESULT Application::LoadDemo()
 }
 
 void Application::ResizeScene(int width, int height) {
-	if (!d3dDevice)
+	if (!d3dDevice || !d3dContext)
 	{
 		return;
 	}
@@ -442,7 +442,7 @@ void Application::DumpD3DDebug()
 	
 	// Get the debug interface for the device.
 	ComPtr<IDXGIDebug1> debugInterface = nullptr;
-	/*
+	
 	if (FAILED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debugInterface))))
 	{
 		return;
@@ -450,6 +450,5 @@ void Application::DumpD3DDebug()
 
 	// Dump the list of leaked objects to the debugger output window.
 	DirectxHelper::ThrowIfFailed(debugInterface->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL));
-	*/
 }
 #endif

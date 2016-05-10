@@ -4,10 +4,14 @@
 #include <vector>
 
 #include <dxgi1_3.h>
-#include <dxgidebug.h>
 #include <d3d11_2.h>
 
-#include <xnamath.h>
+#ifdef _DEBUG
+	#include <initguid.h>
+	#include <dxgidebug.h>
+#endif
+
+#include <DirectXMath.h>
 
 #include <wrl.h>
 

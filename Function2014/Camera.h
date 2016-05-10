@@ -1,7 +1,8 @@
 #pragma once
 
-#include <D3D11.h>
-#include <xnamath.h>
+#include "common.h"
+
+using namespace DirectX;
 
 class Camera
 {

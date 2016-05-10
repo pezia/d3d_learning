@@ -3,6 +3,8 @@
 #include "common.h"
 #include "classes.h"
 
+#include <D3Dcompiler.h>
+
 class DemoLoader
 {
 private:
@@ -63,13 +65,13 @@ public:
 
 		Mesh* mesh1 = geometryFactory->createReferenceAxis();
 
-		if (FAILED(hr = D3DX11CompileFromFile("shaders.hlsl", 0, 0, "VShader", "vs_4_0", 0, 0, 0, &VS, &errors, 0))) {
+		if (FAILED(hr = D3DCompileFromFile(L"shaders.hlsl", nullptr, nullptr, "VShader", "vs_4_0", 0, 0, &VS, &errors))) {
 			char *verror = (char *)errors->GetBufferPointer();
 			MessageBox(NULL, verror, "Error compiling the vertex shader", MB_ICONASTERISK);
 			DirectxHelper::ThrowIfFailed(hr);
 		}
 
-		if (FAILED(hr = D3DX11CompileFromFile("shaders.hlsl", 0, 0, "PShader", "ps_4_0", 0, 0, 0, &PS, &errors, 0))) {
+		if (FAILED(hr = D3DCompileFromFile(L"shaders.hlsl", nullptr, nullptr, "PShader", "ps_4_0", 0, 0, &PS, &errors))) {
 			char *verror = (char *)errors->GetBufferPointer();
 			MessageBox(NULL, verror, "Error compiling the vertex shader", MB_ICONASTERISK);
 			DirectxHelper::ThrowIfFailed(hr);
