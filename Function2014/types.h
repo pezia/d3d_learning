@@ -1,5 +1,4 @@
-#ifndef __TYPES_H__
-#define __TYPES_H__
+#pragma once
 
 #include <windows.h>
 #include <xnamath.h>
@@ -12,7 +11,7 @@ typedef struct SimpleVertex_t
 } SimpleVertex;
 
 
-#pragma pack(push, 0)
+#pragma pack(push, 1)
 
 __declspec(align(16)) typedef struct ConstantBuffer_t
 {
@@ -30,5 +29,3 @@ __declspec(align(16)) typedef struct ConstantBuffer_t
 } ConstantBuffer;
 
 #pragma pack(pop)
-
-#endif

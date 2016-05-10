@@ -1,0 +1,63 @@
+@startuml
+
+interface IRenderable {
+    void Render(DWORD tickCount)
+}
+
+interface ITimelineEvent {
+    std::vector<IProperty> properties
+    DWORD fromTick;
+    DWORD toTick;
+    WORD layer;
+}
+
+class Timeline {
+    std::vector<ITimelineEvent*> timelineEvents
+}
+
+class RenderObjectsEvent {
+    std::vector<Mesh*> meshes;
+}
+
+class CameraEvent {
+    Camera camera
+}
+
+class CombineEvent {
+    std::vector<ITimelineEvent*> timelineEvents;
+    CombinationMode combinationMode;
+    ID3D11PixelShader* pixelShader;
+}
+
+class ParticleEvent {
+}
+
+class RenderPostProcessEffectEvent {
+    ID3D11PixelShader* pixelShader
+}
+
+class Mesh {
+}
+
+class Camera {
+}
+
+class OmniLight {
+}
+
+class SpotLight {
+}
+
+class DirectionalLight {
+}
+
+Timeline -- ITimelineEvent
+Timeline --> IRenderable
+ITimelineEvent --> IRenderable
+RenderObjectsEvent --> ITimelineEvent
+CameraEvent -->  ITimelineEvent
+CombineEvent -->  ITimelineEvent
+ParticleEvent --> ITimelineEvent
+RenderPostProcessEffectEvent --> ITimelineEvent
+
+@enduml
