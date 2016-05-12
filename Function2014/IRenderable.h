@@ -5,5 +5,5 @@
 class IRenderable
 {
 public:
-	virtual void Render(DWORD tick, ID3D11DeviceContext2 *m_pDeviceContext, IDXGISwapChain1 *m_pSwapChain) = 0;
+	virtual void Render(DWORD tick, const D3DResources* d3dResources) = 0;
 };

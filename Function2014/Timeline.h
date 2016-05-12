@@ -19,11 +19,11 @@ public:
 		}
 	}
 
-	void Timeline::Render(DWORD tick, ID3D11DeviceContext2 *m_pDeviceContext, IDXGISwapChain1 *m_pSwapChain)
+	void Timeline::Render(DWORD tick, const D3DResources* d3dResources)
 	{
 		for each (TimelineEventAbstract* timelineEvent in timelineEvents)
 		{
-			timelineEvent->Render(tick, m_pDeviceContext, m_pSwapChain);
+			timelineEvent->Render(tick, d3dResources);
 		}
 	}
 

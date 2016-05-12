@@ -38,7 +38,7 @@ public:
 
 		OmniLight* light1 = new OmniLight();
 		light1->range = 100.0f;
-		light1->diffuseColor = XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f);
+		light1->diffuseColor =  XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f);
 		light1->position = XMFLOAT4(0.0f, 10.0f, 0.0f, 0.0f);
 
 		OmniLight* light2 = new OmniLight();
@@ -46,12 +46,10 @@ public:
 		light2->diffuseColor = XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f);
 		light2->position = XMFLOAT4(0.0f, -10.0f, 0.0f, 0.0f);
 
-
 		OmniLight* light3 = new OmniLight();
 		light3->range = 100.0f;
 		light3->diffuseColor = XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f);
 		light3->position = XMFLOAT4(0.0f, 0, 10.0f, 0.0f);
-
 
 		OmniLight* light4 = new OmniLight();
 		light4->range = 100.0f;

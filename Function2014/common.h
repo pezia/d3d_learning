@@ -9,9 +9,11 @@
 #ifdef _DEBUG
 	#include <initguid.h>
 	#include <dxgidebug.h>
+	#include <d3d11sdklayers.h>
 #endif
 
 #include <DirectXMath.h>
+#include <DirectXColors.h>
 
 #include <wrl.h>
 

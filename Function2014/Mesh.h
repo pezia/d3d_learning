@@ -7,8 +7,30 @@ using namespace Microsoft::WRL;
 class Mesh
 {
 public:
-	Mesh();
-	~Mesh();
+	void * operator new(size_t nSize)
+	{
+		return _aligned_malloc(nSize, 16);
+	}
+
+	void operator delete(void* p)
+	{
+		_aligned_free(p);
+	}
+
+	Mesh() :
+		vertexBuffer(nullptr), indexBuffer(nullptr), vertexLayout(nullptr), vertexShader(nullptr), pixelShader(nullptr), primitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
+	{
+		modelMatrix = XMMatrixIdentity();
+	}
+
+	~Mesh()
+	{
+		vertexShader = nullptr;
+		pixelShader = nullptr;
+		vertexBuffer = nullptr;
+		indexBuffer = nullptr;
+		vertexLayout = nullptr;
+	}
 
 	std::wstring name;
 

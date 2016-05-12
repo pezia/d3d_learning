@@ -19,12 +19,11 @@ public:
 
 	HRESULT Initialize();
 
-	void ResizeScene(int width, int height);
+	void ResizeScene(UINT width, UINT height);
 
 	void RunMessageLoop();
 
 private:
-	HRESULT InitializeDirect3D();
 	HRESULT LoadDemo();
 	void Render(DWORD tickCount);
 	void DumpD3DDebug();
@@ -38,16 +37,7 @@ private:
 
 private:
 	HWND                            hWnd;
-	ComPtr<ID3D11Device2>           d3dDevice;
-	ComPtr<ID3D11DeviceContext2>    d3dContext;
-	ComPtr<IDXGISwapChain1>         swapChain;
-	ComPtr<ID3D11RenderTargetView>  renderTargetView;
-	ComPtr<ID3D11DepthStencilView>  depthStencilView;
-	ComPtr<ID3D11BlendState>        blendState;
-	ComPtr<ID3D11SamplerState>      samplerState;
-
-	D3D11_VIEWPORT                  vp;
-	D3D_FEATURE_LEVEL               d3dFeatureLevel;
+	unique_ptr<D3DResources>        d3dResources;
 	FLOAT                           viewportWidth;
 	FLOAT                           viewportHeight;
 	unique_ptr<IGeometryFactory>    geometryFactory;

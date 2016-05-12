@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Application.h"
-
+#include "D3DResources.h"
 #include "IGeometryFactory.h"
 #include "IProperty.h"
 #include "IRenderable.h"
+
+#include "Application.h"
 
 #include "Camera.h"
 #include "Mesh.h"

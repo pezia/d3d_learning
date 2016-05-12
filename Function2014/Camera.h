@@ -7,6 +7,16 @@ using namespace DirectX;
 class Camera
 {
 public:
+	void * operator new(size_t nSize)
+	{
+		return _aligned_malloc(nSize, 16);
+	}
+
+	void operator delete(void* p)
+	{
+		_aligned_free(p);
+	}
+
 	Camera() :
 		fov(XM_PIDIV2),
 		aspectRatio(16.0f / 9.0f),

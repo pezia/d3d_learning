@@ -52,14 +52,14 @@ public:
 		return std::vector<IProperty>();
 	}
 
-	void Render(DWORD tick, ID3D11DeviceContext2 *deviceContext, IDXGISwapChain1 *swapChain)
+	void Render(DWORD tick, const D3DResources* d3dResources)
 	{
 		FLOAT time = tick / 1000.0f;
 
 		SecureZeroMemory(&constantBufferData, sizeof(constantBufferData));
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
 
-		swapChain->GetDesc1(&swapChainDesc);
+		d3dResources->swapChain->GetDesc1(&swapChainDesc);
 		UINT stride = sizeof(SimpleVertex);
 		UINT offset = 0;
 
@@ -70,15 +70,12 @@ public:
 			bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 			bd.CPUAccessFlags = 0;
 
-			ComPtr<ID3D11Device> device;
-
-			deviceContext->GetDevice(&device);
-			DirectxHelper::ThrowIfFailed(device->CreateBuffer(&bd, nullptr, &constantBuffer));
+			DirectxHelper::ThrowIfFailed(d3dResources->d3dDevice->CreateBuffer(&bd, nullptr, &constantBuffer));
 			SetDebugObjectName(constantBuffer.Get(), "Constant buffer");
 		}
 
 		// TODO move camera position logic to the camera
-		camera.position = XMVectorSet(2.0f * sin(time), sin(time), 2.0f * cos(time), 1.0f);
+		camera.position = XMVectorSet(2.0f * XMScalarSinEst(time), XMScalarSinEst(time), 2.0f * XMScalarCosEst(time), 1.0f);
 		camera.up = XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f);
 		camera.target = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -113,25 +110,25 @@ public:
 		{
 			constantBufferData.mModel = XMMatrixTranspose(mesh->modelMatrix);
 
-			deviceContext->BeginEventInt((std::wstring(L"Render ") + mesh->name).c_str(), 0);
+			d3dResources->d3dContext->BeginEventInt((std::wstring(L"Render ") + mesh->name).c_str(), 0);
 
-			deviceContext->UpdateSubresource(constantBuffer.Get(), 0, nullptr, &constantBufferData, 0, 0);
+			d3dResources->d3dContext->UpdateSubresource(constantBuffer.Get(), 0, nullptr, &constantBufferData, 0, 0);
 
-			deviceContext->IASetVertexBuffers(0, 1, mesh->vertexBuffer.GetAddressOf(), &stride, &offset);
-			deviceContext->IASetIndexBuffer(mesh->indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
+			d3dResources->d3dContext->IASetVertexBuffers(0, 1, mesh->vertexBuffer.GetAddressOf(), &stride, &offset);
+			d3dResources->d3dContext->IASetIndexBuffer(mesh->indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
 
-			deviceContext->IASetInputLayout(mesh->vertexLayout.Get());
-			deviceContext->IASetPrimitiveTopology(mesh->primitiveTopology);
+			d3dResources->d3dContext->IASetInputLayout(mesh->vertexLayout.Get());
+			d3dResources->d3dContext->IASetPrimitiveTopology(mesh->primitiveTopology);
 			
-			deviceContext->VSSetShader(mesh->vertexShader.Get(), NULL, 0);
-			deviceContext->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
+			d3dResources->d3dContext->VSSetShader(mesh->vertexShader.Get(), NULL, 0);
+			d3dResources->d3dContext->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
 
-			deviceContext->PSSetShader(mesh->pixelShader.Get(), NULL, 0);
-			deviceContext->PSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
+			d3dResources->d3dContext->PSSetShader(mesh->pixelShader.Get(), NULL, 0);
+			d3dResources->d3dContext->PSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
 
-			deviceContext->DrawIndexed(mesh->numIndices, 0, 0);
+			d3dResources->d3dContext->DrawIndexed(mesh->numIndices, 0, 0);
 
-			deviceContext->EndEvent();
+			d3dResources->d3dContext->EndEvent();
 		}
 	}
 };
