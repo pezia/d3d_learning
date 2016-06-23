@@ -17,7 +17,7 @@ public:
 		_aligned_free(p);
 	}
 
-	Mesh() :
+	Mesh() noexcept :
 		vertexBuffer(nullptr), indexBuffer(nullptr), vertexLayout(nullptr), vertexShader(nullptr), pixelShader(nullptr), primitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
 	{
 		modelMatrix = XMMatrixIdentity();
@@ -25,10 +25,12 @@ public:
 
 	~Mesh()
 	{
+		hullShader   = nullptr;
+		domainShader = nullptr;
 		vertexShader = nullptr;
-		pixelShader = nullptr;
+		pixelShader  = nullptr;
 		vertexBuffer = nullptr;
-		indexBuffer = nullptr;
+		indexBuffer  = nullptr;
 		vertexLayout = nullptr;
 	}
 
@@ -45,6 +47,8 @@ public:
 	ComPtr<ID3D11InputLayout>  vertexLayout;
 	ComPtr<ID3D11VertexShader> vertexShader;
 	ComPtr<ID3D11PixelShader>  pixelShader;
+	ComPtr<ID3D11HullShader>   hullShader;
+	ComPtr<ID3D11DomainShader> domainShader;
 
 	XMMATRIX modelMatrix;
 };

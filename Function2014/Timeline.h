@@ -21,6 +21,7 @@ public:
 
 	void Timeline::Render(DWORD tick, const D3DResources* d3dResources)
 	{
+		// TODO: render with deferred contexts
 		for each (TimelineEventAbstract* timelineEvent in timelineEvents)
 		{
 			timelineEvent->Render(tick, d3dResources);

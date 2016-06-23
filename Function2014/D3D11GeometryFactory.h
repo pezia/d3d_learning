@@ -4,6 +4,8 @@
 #include "IGeometryFactory.h"
 #include "Mesh.h"
 
+#include <assimp\mesh.h>
+
 class D3D11GeometryFactory : public IGeometryFactory
 {
 private:
@@ -22,4 +24,6 @@ public:
 	Mesh* createCube();
 	Mesh* createSphere(const int numSegments = 64);
 	Mesh* createReferenceAxis();
+
+	Mesh* createFromAiMesh(aiMesh* mesh);
 };

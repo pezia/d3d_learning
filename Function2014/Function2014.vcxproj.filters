@@ -107,6 +107,9 @@
     <ClInclude Include="D3DResources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PipelineState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders.hlsl">

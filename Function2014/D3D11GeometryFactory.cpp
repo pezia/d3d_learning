@@ -1,5 +1,9 @@
 #include "D3D11GeometryFactory.h"
 
+#include <locale>
+#include <codecvt>
+#include <string>
+
 D3D11GeometryFactory::D3D11GeometryFactory(ID3D11Device1* device) : dev(device)
 {
 }
@@ -284,10 +288,78 @@ Mesh* D3D11GeometryFactory::createReferenceAxis()
 	axisMesh->name = L"Reference axis";
 	axisMesh->numVertices = ARRAYSIZE(axisVertices);
 	axisMesh->numIndices = ARRAYSIZE(axisIndices);
+	axisMesh->primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	this->createBuffers(axisMesh, axisVertices, axisMesh->numVertices, axisIndices, axisMesh->numIndices);
 
 	return axisMesh;
+}
+
+Mesh* D3D11GeometryFactory::createFromAiMesh(aiMesh* mesh)
+{
+	Mesh* demoMesh = new Mesh();
+
+	demoMesh->numVertices = mesh->mNumVertices;
+	demoMesh->numIndices = 0;
+
+	std::unique_ptr<SimpleVertex[]> meshVertices(new SimpleVertex[demoMesh->numVertices]);
+
+	for (UINT i = 0; i < mesh->mNumVertices; i++)
+	{
+		meshVertices[i].Pos.x = mesh->mVertices[i].x;
+		meshVertices[i].Pos.y = mesh->mVertices[i].y;
+		meshVertices[i].Pos.z = mesh->mVertices[i].z;
+
+		if (mesh->HasNormals())
+		{
+			meshVertices[i].Normal.x = mesh->mNormals[i].x;
+			meshVertices[i].Normal.y = mesh->mNormals[i].y;
+			meshVertices[i].Normal.z = mesh->mNormals[i].z;
+		}
+
+		if (mesh->HasTextureCoords(0))
+		{
+			// TODO: handle multiple texcoords
+			meshVertices[i].TexCoord.x = mesh->mTextureCoords[0]->x;
+			meshVertices[i].TexCoord.y = mesh->mTextureCoords[0]->y;
+		}
+
+		if (mesh->HasTangentsAndBitangents()) {
+			meshVertices[i].Binormal.x = mesh->mBitangents[i].x;
+			meshVertices[i].Binormal.y = mesh->mBitangents[i].y;
+			meshVertices[i].Binormal.z = mesh->mBitangents[i].z;
+
+			meshVertices[i].Tangent.x = mesh->mTangents[i].x;
+			meshVertices[i].Tangent.y = mesh->mTangents[i].y;
+			meshVertices[i].Tangent.z = mesh->mTangents[i].z;
+		}
+	}
+
+	for (UINT i = 0; i < mesh->mNumFaces; i++)
+	{
+		demoMesh->numIndices += mesh->mFaces[i].mNumIndices;
+	}
+
+	std::unique_ptr<WORD[]> meshIndices(new WORD[demoMesh->numIndices]);
+
+	UINT currentIndex = 0;
+
+	for (UINT i = 0; i < mesh->mNumFaces; i++)
+	{
+		for (UINT vertexIndex = 0; vertexIndex < mesh->mFaces[i].mNumIndices; vertexIndex++)
+		{
+			meshIndices[currentIndex++] = mesh->mFaces[i].mIndices[vertexIndex];
+		}
+	}
+
+	this->createBuffers(demoMesh, meshVertices.get(), demoMesh->numVertices, meshIndices.get(), demoMesh->numIndices);
+
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+	
+	demoMesh->name = converter.from_bytes(mesh->mName.C_Str());
+	demoMesh->primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	return demoMesh;
 }
 
 void D3D11GeometryFactory::createBuffers(

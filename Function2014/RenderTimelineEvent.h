@@ -7,7 +7,7 @@ class RenderTimelineEvent : public TimelineEventAbstract
 
 public:
 	std::vector<Mesh*> meshes;
-	std::vector<OmniLight*> omniLights;
+	std::vector<OmniLight> omniLights;
 	Camera camera;
 
 protected:
@@ -34,10 +34,7 @@ public:
 
 	~RenderTimelineEvent()
 	{
-		for each (OmniLight* omniLight in omniLights)
-		{
-			SAFE_DELETE(omniLight);
-		}
+		omniLights.clear();
 
 		for each (Mesh* mesh in meshes)
 		{
@@ -96,17 +93,17 @@ public:
 
 		XMMATRIX rotationMatrix = XMMatrixRotationZ(time * XM_2PI);
 
-		for each (OmniLight* omniLight in omniLights)
+		for (auto omniLight : omniLights)
 		{
-			constantBufferData.fOmniLightRange[i] = omniLight->range;
+			constantBufferData.fOmniLightRange[i] = omniLight.range;
 			
-			constantBufferData.vOmniLightPosition[i] = XMVector4Transform(XMLoadFloat4(&omniLight->position), rotationMatrix);	
-			constantBufferData.vOmniLightColor[i] = XMLoadFloat4(&omniLight->diffuseColor);
+			constantBufferData.vOmniLightPosition[i] = XMVector4Transform(XMLoadFloat4(&omniLight.position), rotationMatrix);	
+			constantBufferData.vOmniLightColor[i] = XMLoadFloat4(&omniLight.diffuseColor);
 
 			i++;
 		}
 
-		for each (Mesh* mesh in meshes)
+		for (auto mesh : meshes)
 		{
 			constantBufferData.mModel = XMMatrixTranspose(mesh->modelMatrix);
 
@@ -125,6 +122,9 @@ public:
 
 			d3dResources->d3dContext->PSSetShader(mesh->pixelShader.Get(), NULL, 0);
 			d3dResources->d3dContext->PSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
+
+			d3dResources->d3dContext->HSSetShader(mesh->hullShader.Get(), NULL, 0);
+			d3dResources->d3dContext->DSSetShader(mesh->domainShader.Get(), NULL, 0);
 
 			d3dResources->d3dContext->DrawIndexed(mesh->numIndices, 0, 0);
 

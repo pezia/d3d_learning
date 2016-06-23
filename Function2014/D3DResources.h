@@ -16,6 +16,7 @@ public:
 	ComPtr<ID3D11DepthStencilView>  depthStencilView;
 	ComPtr<ID3D11BlendState>        blendState;
 	ComPtr<ID3D11SamplerState>      samplerState;
+	ComPtr<ID3D11DepthStencilState> depthStencilState;
 
 	D3D11_VIEWPORT                  viewport;
 	D3D_FEATURE_LEVEL               d3dFeatureLevel;
@@ -67,6 +68,7 @@ public:
 
 		blendState = nullptr;
 		samplerState = nullptr;
+		depthStencilState = nullptr;
 		swapChain = nullptr;
 		depthStencilView = nullptr;
 		renderTargetView = nullptr;
@@ -155,7 +157,8 @@ private:
 		d3dContext->Flush();
 
 
-		if (swapChain != nullptr) {
+		if (swapChain != nullptr)
+		{
 			ThrowIfFailed(swapChain->ResizeBuffers(backBufferCount, renderTargetWidth, renderTargetHeight, backBufferFormat, 0));
 		}
 		else
@@ -163,10 +166,11 @@ private:
 			CreateSwapChain();
 		}
 
-		CreateBackBufferView();
-		CreateDepthStencilView();
 		CreateBlendState();
 		CreateSamplerState();
+		CreateDepthStencilState();
+		CreateBackBufferView();
+		CreateDepthStencilView();
 
 		d3dContext->RSSetViewports(1, &viewport);
 	}
@@ -277,6 +281,38 @@ private:
 		);
 
 		SetDebugObjectName(depthStencilView.Get(), "Depth-stencil view");
+	}
+
+	void CreateDepthStencilState()
+	{
+		D3D11_DEPTH_STENCIL_DESC dsDesc;
+
+		// Depth test parameters
+		dsDesc.DepthEnable = true;
+		dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+		// Stencil test parameters
+		dsDesc.StencilEnable = true;
+		dsDesc.StencilReadMask = 0xFF;
+		dsDesc.StencilWriteMask = 0xFF;
+
+		// Stencil operations if pixel is front-facing
+		dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+		dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		dsDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+		// Stencil operations if pixel is back-facing
+		dsDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+		dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+		// Create depth stencil state
+		d3dDevice->CreateDepthStencilState(&dsDesc, &depthStencilState);
+
+		SetDebugObjectName(depthStencilState.Get(), "Depth-Stencil State");
 	}
 
 	void CreateBlendState()

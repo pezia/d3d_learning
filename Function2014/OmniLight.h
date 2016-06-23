@@ -7,13 +7,14 @@ using namespace DirectX;
 class OmniLight
 {
 public:
-	OmniLight()
+	OmniLight() noexcept
+		: diffuseColor(), position(), range()
 	{
 
 	}
+
 	~OmniLight()
 	{
-
 	}
 
 public:

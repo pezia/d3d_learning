@@ -11,6 +11,8 @@ typedef struct SimpleVertex_t
 	XMFLOAT3 Pos;
 	XMFLOAT3 Normal;
 	XMFLOAT2 TexCoord;
+	XMFLOAT3 Binormal;
+	XMFLOAT3 Tangent;
 } SimpleVertex;
 
 
