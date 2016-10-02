@@ -21,6 +21,7 @@ typedef struct SimpleVertex_t
 __declspec(align(16)) typedef struct ConstantBuffer_t
 {
 	XMMATRIX mModel;
+	XMMATRIX mModelInverseTranspose;
 	XMMATRIX mView;
 	XMMATRIX mProjection;
 

@@ -97,7 +97,7 @@ public:
 		{
 			constantBufferData.fOmniLightRange[i] = omniLight.range;
 			
-			constantBufferData.vOmniLightPosition[i] = XMVector4Transform(XMLoadFloat4(&omniLight.position), rotationMatrix);	
+			constantBufferData.vOmniLightPosition[i] = XMLoadFloat4(&omniLight.position);
 			constantBufferData.vOmniLightColor[i] = XMLoadFloat4(&omniLight.diffuseColor);
 
 			i++;
@@ -105,7 +105,8 @@ public:
 
 		for (auto mesh : meshes)
 		{
-			constantBufferData.mModel = XMMatrixTranspose(mesh->modelMatrix);
+			constantBufferData.mModel                 = XMMatrixTranspose(mesh->modelMatrix);
+			constantBufferData.mModelInverseTranspose = XMMatrixTranspose(XMMatrixInverse(nullptr, constantBufferData.mModel));
 
 			d3dResources->d3dContext->BeginEventInt((std::wstring(L"Render ") + mesh->name).c_str(), 0);
 

@@ -1,6 +1,7 @@
 cbuffer ConstantBuffer : register(b0)
 {
 	matrix Model;
+	matrix ModelInverseTranspose;
 	matrix View;
 	matrix Projection;
 
@@ -30,8 +31,8 @@ struct VS_OUTPUT
 	float3 worldPosition : TEXCOORD1;
 };
 
-Texture2D Texture : register(t0);
-SamplerState Sampler : register(s0);
+Texture2D microfacetTexture;
+SamplerState microfacetSampler;
 
 static float OmniLightRanges[16] = (float[16])OmniLightRangePacked;
 
@@ -49,7 +50,7 @@ VS_OUTPUT VShader(VS_INPUT input)
 
 	output.position = temp;
 	output.texcoord = input.texcoord;
-	output.normal = mul(float4(input.normal, 0.0f), Model).xyz;
+	output.normal = mul(float4(input.normal, 0.0f), ModelInverseTranspose).xyz;
 
 	return output;
 }
@@ -58,23 +59,38 @@ float4 PShader(VS_OUTPUT input) : SV_TARGET
 {
 	uint i;
 
+	float2 microfacetTextureUV;
+
 	float3 finalColor = (float3)0;
 
 	float3 viewDirection = normalize((float3)EyePosition - input.worldPosition);
 		
 	for (i = 0; i < OmniLightCount; i++)
 	{
-		float3 lightPosition = OmniLightPositions[i].xyz;
-		float3 lightDirection = normalize(lightPosition - input.worldPosition);
-		float3 lightColor = OmniLightColors[i].rgb;
-		float lightRange = saturate(1 - dot(lightDirection / OmniLightRanges[i], lightDirection / OmniLightRanges[i]));
-		float lightIntensity = saturate(dot(input.normal, lightDirection));
-		float shadow = saturate(4.0 * lightRange);
-		float3 reflection = normalize(2.0 * lightIntensity * input.normal - lightDirection);
-		float specular = min(pow(saturate(dot(reflection, viewDirection)), 3), 1.0);
+		float3 lightPosition    = OmniLightPositions[i].xyz;
+		float3 lightAttenuation = float3(1.0, 0.02, 0.0);  //OmniLightAttenuations[i].xyz;
+		float2 range            = (float2)OmniLightRanges[i];
+		float3 lightDirection   = normalize(lightPosition - input.worldPosition);
+		float  lightDistance    = distance(lightPosition, input.worldPosition);
+		float3 halfway          = normalize(lightDirection + viewDirection);
+		//microfacetTextureUV.x = halfway.z * range.x + range.y;
+		//microfacetTextureUV.y = dot(lightDirection, halfway);
+		
+		//float3 color = microfacetTexture.Sample(microfacetSampler, microfacetTextureUV);
+		//color *= saturate(min(viewDirection.z, lightDirection.z) * 2.0 * halfway.z / microfacetTextureUV.y);
+		//finalColor += color * specularColor + diffuseColor * lightDirection.z;
 
-		finalColor += shadow * saturate((lightColor * lightIntensity) * lightRange) + specular * lightColor;
-		//finalColor += saturate(lightColor * lightIntensity);
+		float3 lightColor = 
+			(
+				OmniLightColors[i].rgb // C0
+				/
+				(lightAttenuation.x + lightAttenuation.y * lightDistance + lightAttenuation.z * lightDistance * lightDistance)
+			);
+		
+		// diffuse reflection
+		finalColor += lightColor * saturate(dot(input.normal, lightDirection));
+		// white specular reflection
+		finalColor += float3(1.0, 1.0, 1.0) * pow(saturate(dot(input.normal, halfway)), 60);
 	}
 
 	return saturate(float4(finalColor, 1.0));
