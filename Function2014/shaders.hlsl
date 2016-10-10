@@ -63,7 +63,7 @@ float4 PShader(VS_OUTPUT input) : SV_TARGET
 
 	float3 finalColor = (float3)0;
 
-	float3 viewDirection = normalize((float3)EyePosition - input.worldPosition);
+	float3 viewDirection = normalize(input.worldPosition - (float3)EyePosition);
 		
 	for (i = 0; i < OmniLightCount; i++)
 	{

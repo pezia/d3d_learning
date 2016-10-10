@@ -16,3 +16,4 @@
 #include "Timeline.h"
 #include "RenderTimelineEvent.h"
 #include "DemoLoader.h"
+#include "Core\Timer\Timer.h"

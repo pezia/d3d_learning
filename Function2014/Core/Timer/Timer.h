@@ -7,8 +7,9 @@ class Timer
 private:
 	LARGE_INTEGER qpcFrequency;
 	LARGE_INTEGER qpcLastTime;
-	INT64 elapsedTicks;
-	INT64 totalTicks;
+	UINT64 qpcMaxDelta;
+	UINT64 totalTicks;
+	UINT64 elapsedTicks;
 
 public:
 	static const UINT64 ticksPerSecond = 10000000;
@@ -23,7 +24,7 @@ public:
 	{
 	}
 
-	INT64 GetElapsedTicks()
+	UINT64 GetElapsedTicks()
 	{
 		return this->elapsedTicks;
 	}
@@ -33,7 +34,7 @@ public:
 		return (DOUBLE)this->elapsedTicks / this->ticksPerSecond;
 	}
 
-	INT64 GetTotalTicks()
+	UINT64 GetTotalTicks()
 	{
 		return this->totalTicks;
 	}
@@ -46,10 +47,11 @@ public:
 	void Tick()
 	{
 		LARGE_INTEGER currentTime;
-
 		QueryPerformanceCounter(&currentTime);
 
-		UINT64 delta = currentTime.QuadPart - this->qpcLastTime.QuadPart;
+		this->elapsedTicks = currentTime.QuadPart - this->qpcLastTime.QuadPart;
+
+		this->totalTicks += this->elapsedTicks;
 
 		this->qpcLastTime = currentTime;
 	}

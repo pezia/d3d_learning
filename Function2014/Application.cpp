@@ -116,7 +116,9 @@ void Application::RunMessageLoop()
 
 	bool done = false;
 
-	DWORD startTick = GetTickCount();
+	Timer timer;
+
+	ULONGLONG start = GetTickCount64();
 
 	while (!done)
 	{
@@ -127,40 +129,16 @@ void Application::RunMessageLoop()
 				done = true;
 			}
 
-			// translate keystroke messages into the right format
 			TranslateMessage(&msg);
-
-			// send the message to the WindowProc function
 			DispatchMessage(&msg);
 		}
-		else
-		{
-			Render(GetTickCount() - startTick);
-		}
+		
+		Render(GetTickCount64() - start);
+
+		timer.Tick();
 	}
 }
 
-
-void Application::Render(DWORD tickCount)
-{
-	if (!d3dResources->swapChain || !d3dResources->renderTargetView)
-	{
-		return;
-	}
-
-	ID3D11RenderTargetView *const targets[1] = { d3dResources->renderTargetView.Get() };
-	d3dResources->d3dContext->OMSetRenderTargets(d3dResources->renderTargetCount, targets, d3dResources->depthStencilView.Get());
-
-	d3dResources->d3dContext->ClearRenderTargetView(d3dResources->renderTargetView.Get(), Colors::CornflowerBlue);
-	d3dResources->d3dContext->ClearDepthStencilView(d3dResources->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	if (mainTimeline)
-	{
-		mainTimeline->Render(tickCount, d3dResources.get());
-	}
-
-	d3dResources->swapChain->Present(0, 0);
-}
 
 LRESULT CALLBACK Application::WndProc(
 	HWND hWnd,
@@ -199,6 +177,27 @@ LRESULT CALLBACK Application::WndProc(
 
 	// Handle any messages the switch statement didn't
 	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+void Application::Render(ULONGLONG tickCount)
+{
+	if (!d3dResources->swapChain || !d3dResources->renderTargetView)
+	{
+		return;
+	}
+
+	ID3D11RenderTargetView *const targets[1] = { d3dResources->renderTargetView.Get() };
+	d3dResources->d3dContext->OMSetRenderTargets(d3dResources->renderTargetCount, targets, d3dResources->depthStencilView.Get());
+
+	d3dResources->d3dContext->ClearRenderTargetView(d3dResources->renderTargetView.Get(), Colors::CornflowerBlue);
+	d3dResources->d3dContext->ClearDepthStencilView(d3dResources->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	if (mainTimeline)
+	{
+		mainTimeline->Render(tickCount, d3dResources.get());
+	}
+
+	d3dResources->swapChain->Present(0, 0);
 }
 
 #ifdef _DEBUG

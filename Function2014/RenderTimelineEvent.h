@@ -72,7 +72,7 @@ public:
 		}
 
 		// TODO move camera position logic to the camera
-		camera.position = XMVectorSet(2.0f * XMScalarSinEst(time), XMScalarSinEst(time), 2.0f * XMScalarCosEst(time), 1.0f);
+		camera.position = XMVectorSet(2.0f * XMScalarSinEst(time), 2.0f * XMScalarSinEst(time), 2.0f * XMScalarCosEst(time), 1.0f);
 		camera.up = XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f);
 		camera.target = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -91,7 +91,8 @@ public:
 
 		int i = 0;
 
-		XMMATRIX rotationMatrix = XMMatrixRotationZ(time * XM_2PI);
+		//XMMATRIX rotationMatrix = XMMatrixRotationZ(time);
+		XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(XMVectorSet(sin(time), 0.0f, cos(time), 0.0f));
 
 		for (auto omniLight : omniLights)
 		{

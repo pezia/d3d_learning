@@ -22,6 +22,21 @@
     <Filter Include="Header Files\Properties">
       <UniqueIdentifier>{dda9946f-efb4-4af9-acdc-ad095df0629f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Core">
+      <UniqueIdentifier>{06ddf5df-ce90-4fcb-b35f-a08c0f43b91a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Audio">
+      <UniqueIdentifier>{a40ed29a-cc81-4804-9cd7-643e222f1455}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Render">
+      <UniqueIdentifier>{4c6eb821-520f-4f6d-b4e2-23885bae1ed4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Timer">
+      <UniqueIdentifier>{71500207-ea1b-46e3-a161-4e3a59ec7d89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Render\Common">
+      <UniqueIdentifier>{76bc5e17-bcbd-461a-b06a-f5b64530630d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -30,23 +45,17 @@
     <ClCompile Include="D3D11GeometryFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\lib\native\src\gtest\gtest-all.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\lib\native\src\gmock\gmock-all.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PostProcessEffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Audio\Conversation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -60,9 +69,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="debug.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DirectxHelper.h">
@@ -109,6 +115,15 @@
     </ClInclude>
     <ClInclude Include="PipelineState.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Timer\Timer.h">
+      <Filter>Source Files\Core\Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Audio\Conversation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Source Files\Core\Render\Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -25,7 +25,7 @@ public:
 
 private:
 	HRESULT LoadDemo();
-	void Render(DWORD tickCount);
+	void Render(ULONGLONG tickCount);
 	void DumpD3DDebug();
 
 	static LRESULT CALLBACK WndProc(
